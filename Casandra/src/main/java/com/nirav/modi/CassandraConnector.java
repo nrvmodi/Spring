@@ -1,12 +1,15 @@
 package com.nirav.modi;
 
+import java.util.Date;
+import java.util.List;
+
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Metadata;
 import com.datastax.driver.core.Session;
-import java.lang.System;
 
 /**
+ * @Reference from : http://java.dzone.com/articles/connecting-cassandra-java
  * Class used for connecting to Cassandra database.
  */
 public class CassandraConnector
@@ -26,14 +29,20 @@ public class CassandraConnector
     */
    public static void main(final String[] args)
    {
-      final CassandraConnector client = new CassandraConnector();
+//      final CassandraConnector client = new CassandraConnector();
       final String ipAddress = args.length > 0 ? args[0] : "localhost";
       final int port = args.length > 1 ? Integer.parseInt(args[1]) : 9042;
       System.out.println("Connecting to IP Address " + ipAddress + ":" + port + "...");
-      client.connect(ipAddress, port);
+//      client.connect(ipAddress, port);
       MoviePersistence persistence = new MoviePersistence(ipAddress, port);
-      persistence.queryMovieByTitleAndYear("", 1991);
-      client.close();
+      System.out.println("Start Time :"+new Date());
+      /*for(int i=0;i<100000;i++){
+    	  persistence.createMovieList(i);
+      }*/
+      List<Movie> movies = persistence.queryMovieByTitleAndYear("Veer-Zaara-", 1991);
+      movies.forEach(System.out::println);
+      System.out.println("End Time :"+new Date());
+//      client.close();
    }
 
    

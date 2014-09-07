@@ -2,11 +2,14 @@ package com.nirav.modi;
 
 import static java.lang.System.out;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-import com.google.common.base.Optional;
 
 /**
+ * @Reference from : http://java.dzone.com/articles/connecting-cassandra-java
  * Handles movie persistence access.
  */
 public class MoviePersistence
@@ -26,21 +29,31 @@ public class MoviePersistence
     * @param year Year of desired movie.
     * @return Desired movie if match is found; Optional.empty() if no match is found.
     */
-   public Optional<Movie> queryMovieByTitleAndYear(final String title, final int year)
+   public List<Movie> queryMovieByTitleAndYear(final String description, final int year)
    {
-      final ResultSet movieResults = client.getSession().execute(
-         "SELECT * from movies_keyspace.movies WHERE title = ? AND year = ?", title, year);
-      final Row movieRow = movieResults.one();
-      final Optional<Movie> movie =
-           movieRow != null
-         ? Optional.of(new Movie(
-              movieRow.getString("title"),
-              movieRow.getInt("year"),
-              movieRow.getString("description"),
-              movieRow.getString("mmpa_rating"),
-              movieRow.getString("dustin_rating")))
-         : null;
-      return movie;
+	   List<Movie> movies=new ArrayList<Movie>();
+	   try{
+		   client.getSession().execute("CREATE CUSTOM INDEX IF NOT EXISTS description ON movies_keyspace.movies ( description ) USING 'DescriptionIndex';");
+		   final ResultSet movieResults = client.getSession().execute(
+			         "SELECT * from movies_keyspace.movies WHERE description = ?", description, year);
+			      final List<Row> movieRows = movieResults.all();
+			      for(Row movieRow : movieRows){
+			    	  movies.add(
+			    			  new Movie(
+			    					  movieRow.getString("title"),
+			    					  movieRow.getInt("year"),
+			    					  movieRow.getString("description"),
+			    					  movieRow.getString("mmpa_rating"),
+			    					  movieRow.getString("dustin_rating")));
+			    	 
+			      }
+		   
+	   }catch(Exception e){
+		   e.printStackTrace();
+//		   client.getSession().execute("CREATE KEYSPACE movies_keyspace WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };");
+//		   client.getSession().execute("CREATE TABLE movies_keyspace.movies ( title varchar, year int, description varchar, mmpa_rating varchar, dustin_rating varchar, PRIMARY KEY (title, year) );");
+	   }
+      return movies;
    }
 
    
@@ -73,6 +86,16 @@ public class MoviePersistence
    {
       final String deleteString = "DELETE FROM movies_keyspace.movies WHERE title = ? and year = ?";
       client.getSession().execute(deleteString, title, year);
+   }
+   
+   public void createMovieList(int i){
+	      persistMovie("Veer-Zaara-", 1991, "Love Story","1" , "2");
+//	      persistMovie("Veer-Zaara-"+i, 1991 +1, "Love Story","1" , "2");
+//	      persistMovie("Ravan"+i, 1991+i, "Love Story","1" , "2");
+//	      persistMovie("Love"+i, 1991, "Love Story","1" , "2");
+//	      persistMovie("Hum Appke"+i, 1991, "Love Story","1" , "2");
+//	      persistMovie("Ek Do Teen"+i, 1991, "Love Story","1" , "2");
+//	      persistMovie("Mardani"+i, 1991, "Love Story","1" , "2");
    }
 
 

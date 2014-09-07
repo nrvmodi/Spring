@@ -1,5 +1,10 @@
 package com.nirav.modi;
 
+/**
+ * @Reference from : http://java.dzone.com/articles/connecting-cassandra-java
+ * @author sanam
+ *
+ */
 public class Movie {
 	String title;
 	int year;
@@ -14,5 +19,10 @@ public class Movie {
 		this.mmpaRating=mmpaRating;
 		this.dustinRating=dustinRating;
 	}
-
+	@Override
+	public String toString() {
+		return "Movie [title=" + title + ", year=" + year + ", description="
+				+ description + ", mmpaRating=" + mmpaRating
+				+ ", dustinRating=" + dustinRating + "]";
+	}
 }
