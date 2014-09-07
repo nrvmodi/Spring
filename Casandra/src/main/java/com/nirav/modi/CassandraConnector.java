@@ -31,6 +31,8 @@ public class CassandraConnector
       final int port = args.length > 1 ? Integer.parseInt(args[1]) : 9042;
       System.out.println("Connecting to IP Address " + ipAddress + ":" + port + "...");
       client.connect(ipAddress, port);
+      MoviePersistence persistence = new MoviePersistence(ipAddress, port);
+      persistence.queryMovieByTitleAndYear("", 1991);
       client.close();
    }
 
